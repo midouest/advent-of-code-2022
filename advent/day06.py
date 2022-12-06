@@ -1,19 +1,21 @@
 from collections import deque
 
 
-def part1(input: str):
-    for i in range(4, len(input)):
-        if len(set(input[i - 4 : i])) == 4:
-            return i
-
-
-def part2(input: str):
-    window = deque(input[:14])
-    for i in range(14, len(input)):
-        if len(set(window)) == 14:
+def find_first_unique_sequence(input, n):
+    window = deque(input[:n])
+    for i in range(n, len(input)):
+        if len(set(window)) == n:
             return i
         window.popleft()
         window.append(input[i])
+
+
+def part1(input: str):
+    return find_first_unique_sequence(input, 4)
+
+
+def part2(input: str):
+    return find_first_unique_sequence(input, 14)
 
 
 def test_part1():
