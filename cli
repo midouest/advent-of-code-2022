@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-from commands import gen, run
+from commands import GenCommand, RunCommand
+
+
+commands = [GenCommand, RunCommand]
 
 
 def main():
@@ -9,34 +12,11 @@ def main():
     )
 
     subparsers = parser.add_subparsers()
-
-    gen_parser = subparsers.add_parser("gen")
-    gen_parser.add_argument(
-        "day", type=int, choices=range(1, 26), help="The day to generate"
-    )
-    gen_parser.set_defaults(exec=gen.command)
-
-    run_parser = subparsers.add_parser("run")
-    run_parser.add_argument(
-        "day",
-        type=int,
-        nargs="?",
-        choices=range(1, 26),
-        default=0,
-        help="The day to run",
-    )
-    run_parser.add_argument(
-        "part",
-        type=int,
-        nargs="?",
-        choices=(
-            1,
-            2,
-        ),
-        default=0,
-        help="The part to run",
-    )
-    run_parser.set_defaults(exec=run.command)
+    for command_cls in commands:
+        command = command_cls()
+        subparser = subparsers.add_parser(command.name)
+        command.add_arguments(subparser)
+        subparser.set_defaults(exec=command.exec)
 
     args = vars(parser.parse_args())
     exec = args.pop("exec", None)

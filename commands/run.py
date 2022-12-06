@@ -1,30 +1,56 @@
+from argparse import ArgumentParser
 from importlib import import_module
+from commands.base import Command
 from util import puzzle
 
 
-def command(day, part):
-    days = range(1, 26) if day == 0 else [day]
-    parts = range(1, 3) if part == 0 else [part]
+class RunCommand(Command):
+    name = "run"
 
-    for day in days:
-        try:
-            day_suffix = puzzle.format_day_suffix(day)
-            module_name = f"advent.day{day_suffix}"
-            module = import_module(module_name)
-        except:
-            return
+    def add_arguments(self, parser: ArgumentParser):
+        parser.add_argument(
+            "day",
+            type=int,
+            nargs="?",
+            choices=range(1, 26),
+            default=0,
+            help="The day to run",
+        )
+        parser.add_argument(
+            "part",
+            type=int,
+            nargs="?",
+            choices=(
+                1,
+                2,
+            ),
+            default=0,
+            help="The part to run",
+        )
 
-        puzzle_input = puzzle.read(module.__file__)
+    def exec(self, day: int, part: int):
+        days = range(1, 26) if day == 0 else [day]
+        parts = range(1, 3) if part == 0 else [part]
 
-        print(f"day {day}")
-        print("---")
-        for part in parts:
+        for day in days:
             try:
-                part_name = f"part{part}"
-                part_func = getattr(module, part_name)
+                day_suffix = puzzle.format_day_suffix(day)
+                module_name = f"advent.day{day_suffix}"
+                module = import_module(module_name)
             except:
                 return
 
-            answer = part_func(puzzle_input)
-            print(f"part {part} = {answer}")
-        print("")
+            puzzle_input = puzzle.read(module.__file__)
+
+            print(f"day {day}")
+            print("---")
+            for part in parts:
+                try:
+                    part_name = f"part{part}"
+                    part_func = getattr(module, part_name)
+                except:
+                    return
+
+                answer = part_func(puzzle_input)
+                print(f"part {part} = {answer}")
+            print("")
