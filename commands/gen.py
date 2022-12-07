@@ -1,4 +1,3 @@
-import pathlib
 from argparse import ArgumentParser
 from commands.base import Command
 from util import puzzle
@@ -23,13 +22,5 @@ class GenCommand(Command):
 
     def exec(self, day: int):
         puzzle_input = puzzle.fetch_input(day)
-
-        day_suffix = puzzle.format_day_suffix(day)
-        base_dir = pathlib.Path("advent")
-        input_path = base_dir / f"day{day_suffix}.txt"
-        with open(input_path, "w") as input_file:
-            input_file.write(puzzle_input)
-
-        solution_path = base_dir / f"day{day_suffix}.py"
-        with open(solution_path, "w") as solution_file:
-            solution_file.write(template)
+        puzzle.write_input(day, puzzle_input)
+        puzzle.write_solution(day, template)

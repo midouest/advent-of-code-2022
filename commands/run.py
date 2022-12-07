@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from importlib import import_module
 from commands.base import Command
 from util import puzzle
 
@@ -39,9 +38,7 @@ class RunCommand(Command):
 
         for day in days:
             try:
-                day_suffix = puzzle.format_day_suffix(day)
-                module_name = f"advent.day{day_suffix}"
-                module = import_module(module_name)
+                module = puzzle.load_module(day)
             except:
                 return
 
@@ -51,8 +48,7 @@ class RunCommand(Command):
             print("---")
             for part in parts:
                 try:
-                    part_name = f"part{part}"
-                    part_func = getattr(module, part_name)
+                    part_func = puzzle.get_part_function(module, part)
                 except:
                     return
 
