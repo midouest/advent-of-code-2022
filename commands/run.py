@@ -27,8 +27,13 @@ class RunCommand(Command):
             default=0,
             help="The part to run",
         )
+        parser.add_argument(
+            "--submit",
+            action="store_true",
+            help="Submit the answer for the last part executed",
+        )
 
-    def exec(self, day: int, part: int):
+    def exec(self, day: int, part: int, submit: bool):
         days = range(1, 26) if day == 0 else [day]
         parts = range(1, 3) if part == 0 else [part]
 
@@ -53,4 +58,12 @@ class RunCommand(Command):
 
                 answer = part_func(puzzle_input)
                 print(f"part {part} = {answer}")
-            print("")
+
+        print("")
+
+        if submit:
+            print(f"Submitting answer for day {day}, part {part}...")
+            response = puzzle.submit_answer(day, part, answer)
+            print("> " + response)
+
+        print("")
