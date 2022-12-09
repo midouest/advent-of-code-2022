@@ -46,11 +46,7 @@ local function updateRopeCoords()
     for i = 1, ropeLength do
         local key<const> = coordKey1(rope[i])
         local indices<const> = ropeCoords[key]
-        if indices == nil then
-            ropeCoords[key] = {i}
-        else
-            table.insert(indices, i)
-        end
+        if indices == nil then ropeCoords[key] = i end
     end
 end
 
@@ -166,9 +162,9 @@ local function redraw()
             local x<const> = viewX + xOff
             local key<const> = coordKey2(x, y)
             local tile = "."
-            local ropeIndices = ropeCoords[key]
-            if ropeIndices ~= nil then
-                tile = ropeTile(ropeIndices[1])
+            local i = ropeCoords[key]
+            if i ~= nil then
+                tile = ropeTile(i)
             elseif x == startX and y == startY then
                 tile = "s"
             elseif visited[key] ~= nil then
