@@ -9,6 +9,18 @@ template = """def part1(input: str):
 
 def part2(input: str):
     raise NotImplementedError()
+
+
+example = """
+"""
+
+
+def test_part1():
+    assert part1(example) == 0
+
+
+def test_part2():
+    assert part2(example) == 0
 """
 
 
