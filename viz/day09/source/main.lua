@@ -139,8 +139,7 @@ end
 
 local function drawTile(text, x, y)
     local sx<const>, sy<const> = tileToScreen(x, y)
-    gfx.drawTextInRect(text, sx, sy, tilePx, tilePx, nil, nil,
-                       kTextAlignment.center)
+    gfx.drawText(text, sx + tilePx // 2, sy, tilePx, tilePx)
 end
 
 local function ropeTile(i)
