@@ -3,6 +3,6 @@ author=midouest
 description=Advent of Code 2022 day 9 visualizer
 bundleID=dev.rray.rope-bridge
 version=1.0
-buildNumber=4
+buildNumber=6
 imagePath=system
 launchSoundPath=

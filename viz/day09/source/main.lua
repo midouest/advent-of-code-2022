@@ -104,6 +104,12 @@ function setUpGame()
     markVisited()
 end
 
+function setUpMenu()
+    local menu<const> = pd.getSystemMenu()
+    menu:addMenuItem("Reset", setUpGame)
+end
+
+setUpMenu()
 setUpGame()
 
 local function moveLeft()
@@ -128,16 +134,8 @@ function pd.rightButtonDown() moveRight() end
 function pd.upButtonDown() moveUp() end
 function pd.downButtonDown() moveDown() end
 
-function pd.BButtonDown() setUpGame() end
-
-function pd.cranked()
-    local ticks<const> = pd.getCrankTicks(1)
-    if ticks > 0 then
-        lengthenRope()
-    elseif ticks < 0 then
-        shortenRope()
-    end
-end
+function pd.BButtonDown() shortenRope() end
+function pd.AButtonDown() lengthenRope() end
 
 local function tileToScreen(x, y)
     return (x - viewX) * tilePx, (y - viewY) * tilePx
