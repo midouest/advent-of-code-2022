@@ -3,7 +3,7 @@ from commands.base import Command
 from util import puzzle
 
 
-template = """def part1(input: str):
+template = '''def part1(input: str):
     raise NotImplementedError()
 
 
@@ -21,7 +21,7 @@ def test_part1():
 
 def test_part2():
     assert part2(example) == 0
-"""
+'''
 
 
 class GenCommand(Command):
