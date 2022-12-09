@@ -57,6 +57,7 @@ def part1(input: str):
     root = build_root(input)
 
     frontier = [root]
+    total = 0
     while frontier:
         dir = frontier.pop()
 
