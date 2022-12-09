@@ -86,7 +86,6 @@ def part2(input: str):
         scenic_score(lines, x, y) for y in range(1, h - 1) for x in range(1, w - 1)
     ]
     return max(scores)
-    # 108 too low
 
 
 example = """30373
