@@ -21,7 +21,11 @@ local startY<const> = gridSize // 2
 local minPos<const> = 0
 local maxPos<const> = gridSize - 1
 
+local normalFont = gfx.getSystemFont(gfx.font.kVariantNormal)
+local boldFont = gfx.getSystemFont(gfx.font.kVariantBold)
+
 local visited
+local numVisited
 local rope
 local ropeCoords
 local ropeLength
@@ -42,7 +46,12 @@ local function sgn(n)
     return 0
 end
 
-local function markVisited() visited[coordKey1(rope[ropeLength])] = true end
+local function markVisited()
+    local key<const> = coordKey1(rope[ropeLength])
+    if visited[key] ~= nil then return end
+    visited[key] = true
+    numVisited = numVisited + 1
+end
 
 local function updateRopeCoords()
     ropeCoords = {}
@@ -91,6 +100,7 @@ end
 
 function setUpGame()
     visited = {}
+    numVisited = 0
     rope = {}
     ropeCoords = {}
     ropeLength = minRopeLength
@@ -237,6 +247,7 @@ end
 local function redraw()
     gfx.clear(gfx.kColorBlack)
     gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+    gfx.setFont(normalFont)
 
     for yOff = 0, screenHTile - 1 do
         local y<const> = viewY + yOff
@@ -257,6 +268,16 @@ local function redraw()
             end
         end
     end
+
+    gfx.setFont(boldFont)
+    local score<const> = tostring(numVisited)
+    local w, h<const> = gfx.getTextSize(score)
+    w = w + 4
+    gfx.setColor(gfx.kColorWhite)
+    local x<const>, y<const> = screenWPx - w, 0
+    gfx.fillRect(x, y, w, h)
+    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+    gfx.drawTextInRect(score, x, y + 2, w, h, nil, nil, kTextAlignment.center)
 end
 
 function pd.update()
@@ -268,5 +289,4 @@ function pd.update()
     end
 
     pd.timer.updateTimers()
-    pd.drawFPS(0, 0)
 end
