@@ -53,11 +53,16 @@ class RunCommand(Command):
                     return
 
                 answer = part_func(puzzle_input)
-                print(f"part {part} = {answer}")
+                if type(answer) == list:
+                    print(f"part {part} =")
+                    for row in answer:
+                        print(row)
+                else:
+                    print(f"part {part} = {answer}")
 
         print("")
 
-        if submit:
+        if submit and type(answer) in [int, str]:
             print(f"Submitting answer for day {day}, part {part}...")
             response = puzzle.submit_answer(day, part, answer)
             print("> " + response)
