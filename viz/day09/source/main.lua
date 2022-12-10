@@ -154,11 +154,16 @@ local function startPart2()
     for _ = ropeLength, maxRopeLength do lengthenRope() end
 end
 
+local function reset()
+    stopPuzzle()
+    setUpGame()
+end
+
 function setUpMenu()
     local menu<const> = pd.getSystemMenu()
     menu:addMenuItem("Part 1", startPart1)
     menu:addMenuItem("Part 2", startPart2)
-    menu:addMenuItem("Reset", setUpGame)
+    menu:addMenuItem("Reset", reset)
 end
 
 setUpMenu()
