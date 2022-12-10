@@ -9,18 +9,10 @@ class ClockCircuit:
 
     def eval(self, input):
         for v in re.findall(r"(?:addx|noop)(?: (-?\d+))?", input):
-            if v:
-                self.addx(int(v))
-            else:
-                self.noop()
-
-    def addx(self, v):
-        for _ in range(2):
             self.step()
-        self.x += v
-
-    def noop(self):
-        self.step()
+            if v:
+                self.step()
+                self.x += int(v)
 
     def step(self):
         self.delegate.during_cycle(self)
