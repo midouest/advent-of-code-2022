@@ -29,7 +29,7 @@ class RunCommand(Command):
         parser.add_argument(
             "--submit",
             action="store_true",
-            help="Submit the answer for the last part executed",
+            help="Submit the answer for the given day and part",
         )
 
     def exec(self, day: int, part: int, submit: bool):
