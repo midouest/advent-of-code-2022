@@ -36,35 +36,44 @@ class RunCommand(Command):
         days = range(1, 26) if day == 0 else [day]
         parts = range(1, 3) if part == 0 else [part]
 
-        for day in days:
+        for d in days:
             try:
-                module = puzzle.load_module(day)
+                module = puzzle.load_module(d)
             except:
-                return
+                break
 
             puzzle_input = puzzle.read(module.__file__)
 
-            print(f"day {day}")
+            print(f"day {d}")
             print("---")
-            for part in parts:
+            for p in parts:
                 try:
-                    part_func = puzzle.get_part_function(module, part)
+                    part_func = puzzle.get_part_function(module, p)
                 except:
-                    return
+                    break
 
                 answer = part_func(puzzle_input)
                 if type(answer) == list:
-                    print(f"part {part} =")
+                    print(f"part {p} =")
                     for row in answer:
                         print(row)
                 else:
-                    print(f"part {part} = {answer}")
+                    print(f"part {p} = {answer}")
 
-        print("")
+            print("")
 
-        if submit and type(answer) in [int, str]:
-            print(f"Submitting answer for day {day}, part {part}...")
-            response = puzzle.submit_answer(day, part, answer)
-            print("> " + response)
+        if not submit:
+            return
 
+        if day == 0 or part == 0:
+            print("--submit requires an explicit day and part")
+            return
+
+        if type(answer) not in [int, str]:
+            print("--submit only supports answers in integer or string format")
+            return
+
+        print(f"Submitting answer for day {day}, part {part}...")
+        response = puzzle.submit_answer(day, part, answer)
+        print("> " + response)
         print("")
