@@ -1,7 +1,7 @@
 import math
 import heapq
 from abc import ABC, abstractmethod
-from typing import TypeVar, Hashable
+from typing import TypeVar, Hashable, Callable
 from collections import deque, defaultdict
 
 
@@ -43,13 +43,13 @@ class Search(ABC):
         path.reverse()
         return path
 
-    def bfs(self) -> list[Node]:
+    def search(self, take: Callable[[deque], Node]) -> list[Node]:
         frontier: deque[Node] = deque([self.initial()])
         visited: set[NodeId] = set(frontier)
         parents: dict[NodeId, Node] = {}
 
         while frontier:
-            current = frontier.popleft()
+            current = take(frontier)
             if self.goal(current):
                 return self.reconstruct_path(current, parents)
 
@@ -61,25 +61,12 @@ class Search(ABC):
                     frontier.append(neighbor)
 
         raise PathNotFound()
+
+    def bfs(self) -> list[Node]:
+        return self.search(lambda frontier: frontier.popleft())
 
     def dfs(self) -> list[Node]:
-        frontier: list[Node] = [self.initial()]
-        visited: set[NodeId] = set(frontier)
-        parents: dict[NodeId, Node] = {}
-
-        while frontier:
-            current = frontier.pop()
-            if self.goal(current):
-                return self.reconstruct_path(current, parents)
-
-            for neighbor in self.neighbors(current):
-                neighbor_id = self.identity(neighbor)
-                if neighbor_id not in visited:
-                    visited.add(neighbor_id)
-                    parents[neighbor_id] = current
-                    frontier.append(neighbor)
-
-        raise PathNotFound()
+        return self.search(lambda frontier: frontier.pop())
 
 
 class AStarSearch(Search):
