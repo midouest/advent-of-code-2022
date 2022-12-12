@@ -18,8 +18,9 @@ class Search(ABC):
     def initial(self) -> Node:
         raise NotImplementedError()
 
+    @abstractmethod
     def identity(self, node: Node) -> NodeId:
-        return node
+        raise NotImplementedError()
 
     @abstractmethod
     def neighbors(self, node: Node) -> list[Node]:
