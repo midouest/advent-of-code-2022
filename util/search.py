@@ -5,8 +5,7 @@ from typing import TypeVar, Hashable, Callable
 from collections import deque, defaultdict
 
 
-Node = TypeVar("Node")
-NodeId = TypeVar("NodeId", bound=Hashable)
+Node = TypeVar("Node", bound=Hashable)
 
 
 class PathNotFound(Exception):
@@ -16,10 +15,6 @@ class PathNotFound(Exception):
 class Search(ABC):
     @abstractmethod
     def initial(self) -> Node:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def identity(self, node: Node) -> NodeId:
         raise NotImplementedError()
 
     @abstractmethod
@@ -33,7 +28,7 @@ class Search(ABC):
     def reconstruct_path(
         self,
         current: Node,
-        parents: dict[NodeId, Node],
+        parents: dict[Node, Node],
     ) -> list[Node]:
         path = [current]
         current_id = self.identity(current)
@@ -46,8 +41,8 @@ class Search(ABC):
 
     def search(self, take: Callable[[deque], Node]) -> list[Node]:
         frontier: deque[Node] = deque([self.initial()])
-        visited: set[NodeId] = set(frontier)
-        parents: dict[NodeId, Node] = {}
+        visited: set[Node] = set(frontier)
+        parents: dict[Node, Node] = {}
 
         while frontier:
             current = take(frontier)
@@ -55,10 +50,9 @@ class Search(ABC):
                 return self.reconstruct_path(current, parents)
 
             for neighbor in self.neighbors(current):
-                neighbor_id = self.identity(neighbor)
-                if neighbor_id not in visited:
-                    visited.add(neighbor_id)
-                    parents[neighbor_id] = current
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    parents[neighbor] = current
                     frontier.append(neighbor)
 
         raise PathNotFound()
@@ -81,40 +75,38 @@ class AStarSearch(Search):
 
     def astar(self) -> list[Node]:
         initial = self.initial()
-        initial_id = self.identity(initial)
 
-        g_score: dict[NodeId, float] = defaultdict(lambda: math.inf)
-        g_score[initial_id] = 0
+        g_score: dict[Node, float] = defaultdict(lambda: math.inf)
+        g_score[initial] = 0
 
-        f_score: dict[NodeId, float] = defaultdict(lambda: math.inf)
-        f_score[initial_id] = self.heuristic(initial)
+        f_score: dict[Node, float] = defaultdict(lambda: math.inf)
+        f_score[initial] = self.heuristic(initial)
 
-        open_set_ids: set[NodeId] = set([initial_id])
-        open_set: list[tuple[int, Node]] = [(0, initial)]
-        parents: dict[NodeId, Node] = {}
+        open_set: set[Node] = set([initial])
+        open_set_priorities: list[tuple[int, Node]] = [(0, initial)]
+        parents: dict[Node, Node] = {}
 
-        while open_set:
-            _, current = heapq.heappop(open_set)
+        while open_set_priorities:
+            _, current = heapq.heappop(open_set_priorities)
             current_id = self.identity(current)
-            open_set_ids.remove(current_id)
+            open_set.remove(current_id)
 
             if self.goal(current):
                 return self.reconstruct_path(current, parents)
 
             for neighbor in self.neighbors(current):
-                neighbor_id = self.identity(neighbor)
                 tentative_g_score = g_score[current_id] + self.distance(
                     current, neighbor
                 )
-                if tentative_g_score < g_score[neighbor_id]:
-                    parents[neighbor_id] = current
-                    g_score[neighbor_id] = tentative_g_score
+                if tentative_g_score < g_score[neighbor]:
+                    parents[neighbor] = current
+                    g_score[neighbor] = tentative_g_score
                     f = tentative_g_score + self.heuristic(neighbor)
-                    f_score[neighbor_id] = f
+                    f_score[neighbor] = f
 
-                    if neighbor_id not in open_set_ids:
-                        open_set_ids.add(neighbor_id)
-                        heapq.heappush(open_set, (f, neighbor))  # type: ignore
+                    if neighbor not in open_set:
+                        open_set.add(neighbor)
+                        heapq.heappush(open_set_priorities, (f, neighbor))  # type: ignore
 
         raise PathNotFound()
 

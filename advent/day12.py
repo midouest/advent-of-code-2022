@@ -25,9 +25,6 @@ class HeightMapSearch(Search):
     def initial(self):
         return self.start
 
-    def identity(self, node):
-        return node
-
     def lookup(self, node):
         x, y = node
         if x < 0 or x >= self.w or y < 0 or y >= self.h:
