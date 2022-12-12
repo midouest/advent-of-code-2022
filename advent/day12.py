@@ -1,5 +1,5 @@
 import math
-from util.search import Search, PathNotFound
+from util.search import PathNotFound, AStarSearch
 from util.math import manhattan
 
 
@@ -16,7 +16,7 @@ def find(map, values):
     return next(coords(map, values))
 
 
-class HeightMapSearch(Search):
+class HeightMapSearch(AStarSearch):
     def __init__(self, map: list[str], start: tuple[int, int]):
         self.map = map
         self.w, self.h = size(self.map)

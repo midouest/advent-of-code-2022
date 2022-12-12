@@ -29,14 +29,6 @@ class Search(ABC):
     def goal(self, node: Node) -> bool:
         raise NotImplementedError()
 
-    @abstractmethod
-    def distance(self, current: Node, neighbor: Node) -> int:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def heuristic(self, node: Node) -> int:
-        raise NotImplementedError()
-
     def reconstruct_path(
         self,
         current: Node,
@@ -52,8 +44,8 @@ class Search(ABC):
         return path
 
     def bfs(self) -> list[Node]:
-        visited: set[NodeId] = set()
         frontier: deque[Node] = deque([self.initial()])
+        visited: set[NodeId] = set(frontier)
         parents: dict[NodeId, Node] = {}
 
         while frontier:
@@ -71,8 +63,8 @@ class Search(ABC):
         raise PathNotFound()
 
     def dfs(self) -> list[Node]:
-        visited: set[NodeId] = set()
         frontier: list[Node] = [self.initial()]
+        visited: set[NodeId] = set(frontier)
         parents: dict[NodeId, Node] = {}
 
         while frontier:
@@ -88,6 +80,16 @@ class Search(ABC):
                     frontier.append(neighbor)
 
         raise PathNotFound()
+
+
+class AStarSearch(Search):
+    @abstractmethod
+    def distance(self, current: Node, neighbor: Node) -> int:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def heuristic(self, node: Node) -> int:
+        raise NotImplementedError()
 
     def astar(self) -> list[Node]:
         initial = self.initial()
@@ -129,7 +131,7 @@ class Search(ABC):
         raise PathNotFound()
 
 
-class DjikstraMixin:
+class DjikstraSearch(AStarSearch):
     def heuristic(self, node: Node) -> int:
         return 0
 
