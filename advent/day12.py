@@ -1,6 +1,5 @@
 import math
-from util.search import PathNotFound, AStarSearch
-from util.math import manhattan
+from util.search import PathNotFound, Search
 
 
 def size(map):
@@ -16,7 +15,7 @@ def find(map, values):
     return next(coords(map, values))
 
 
-class HeightMapSearch(AStarSearch):
+class HeightMapSearch(Search):
     def __init__(self, map: list[str], start: tuple[int, int]):
         self.map = map
         self.w, self.h = size(self.map)
@@ -55,12 +54,6 @@ class HeightMapSearch(AStarSearch):
             [(x + dx, y + dy) for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]],
         )
 
-    def distance(self, current, neighbor):
-        return 1
-
-    def heuristic(self, node):
-        return manhattan(node, self.end)
-
 
 def parse_input(input: str):
     return input.strip().split()
@@ -69,7 +62,7 @@ def parse_input(input: str):
 def path_length(map, start):
     search = HeightMapSearch(map, start)
     try:
-        path = search.astar()
+        path = search.bfs()
         return len(path) - 1
     except PathNotFound:
         return math.inf
