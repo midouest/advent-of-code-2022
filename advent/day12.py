@@ -16,7 +16,7 @@ def find(map, values):
 
 
 class HeightMapSearch(Search):
-    def __init__(self, map: list[str], start: tuple[int, int]):
+    def __init__(self, map, start):
         self.map = map
         self.w, self.h = size(self.map)
         self.start = start
@@ -70,12 +70,12 @@ def path_length(map, start):
 
 def part1(input: str):
     map = parse_input(input)
-    return path_length(map, find(map, "S"))
+    return path_length(map, coords(map, "S"))
 
 
 def part2(input: str):
     map = parse_input(input)
-    return min(path_length(map, coord) for coord in coords(map, "Sa"))
+    return path_length(map, coords(map, "Sa"))
 
 
 example = """Sabqponm
