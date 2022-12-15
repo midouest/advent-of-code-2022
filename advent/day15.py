@@ -27,17 +27,17 @@ def find_coverage(readings, y):
 
     coverage = sorted(coverage, key=itemgetter(0))
 
-    i, j = 0, 1
-    while i < len(coverage) - 1:
-        (a1, a2), (b1, b2) = coverage[i], coverage[j]
+    merged = []
+    a1, a2 = coverage[0]
+    for b1, b2 in coverage[1:]:
         if a1 > b2 or a2 < b1:
-            i += 1
-            j = i + 1
+            merged.append((a1, a2))
+            a1, a2 = b1, b2
             continue
-        coverage[i] = min(a1, b1), max(a2, b2)
-        del coverage[j]
+        a1, a2 = min(a1, b1), max(a2, b2)
+    merged.append((a1, a2))
 
-    return coverage, beacons
+    return merged, beacons
 
 
 def count_exclusive_positions(input, y):
