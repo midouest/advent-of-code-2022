@@ -1,13 +1,4 @@
-from itertools import cycle
-
-
-def rocks_iter():
-    return cycle(range(5))
-
-
-def jets_iter(input: str):
-    return cycle(input.strip())
-
+from collections import defaultdict
 
 left = {
     0: [(-1, 0)],
@@ -19,11 +10,8 @@ left = {
 
 
 def move_left(rock, x, y, chamber):
-    if x == 0:
-        return x, y
-
     deltas = left[rock]
-    if any(chamber.get((x + dx, y + dy)) for dx, dy in deltas):
+    if any((x + dx, y + dy) in chamber or x + dx < 0 for dx, dy in deltas):
         return x, y
 
     return x - 1, y
@@ -37,21 +25,10 @@ right = {
     4: [(2, 0), (2, 1)],
 }
 
-widths = {
-    0: 4,
-    1: 3,
-    2: 3,
-    3: 1,
-    4: 2,
-}
-
 
 def move_right(rock, x, y, chamber):
-    if x + widths[rock] > 6:
-        return x, y
-
     deltas = right[rock]
-    if any(chamber.get((x + dx, y + dy)) for dx, dy in deltas):
+    if any((x + dx, y + dy) in chamber or x + dx > 6 for dx, dy in deltas):
         return x, y
 
     return x + 1, y
@@ -76,50 +53,99 @@ blocks = {
     4: [(0, 0), (1, 0), (0, 1), (1, 1)],
 }
 
-heights = {
-    0: 1,
-    1: 3,
-    2: 3,
-    3: 4,
-    4: 2,
-}
-
 
 def move_down(rock, x, y, chamber):
-    if y == 0:
-        return x, y, False
-
     deltas = down[rock]
-    if any(chamber.get((x + dx, y + dy)) for dx, dy in deltas):
+    if any((x + dx, y + dy) in chamber or y + dy < 0 for dx, dy in deltas):
         return x, y, False
 
     return x, y - 1, True
 
 
-def debug(chamber, height):
-    for y in range(height, -1, -1):
-        row = "".join(chamber.get((x, y), ".") for x in range(7))
-        print(row)
+def debug(chamber, height, rock_state=None):
+    rock_set = {}
+    if rock_state:
+        rock, rx, ry = rock_state
+        rock_set = {(rx + dx, ry + dy) for dx, dy in blocks[rock]}
+
+    for y in range(height - 1, -1, -1):
+        row = []
+        for x in range(7):
+            c = "."
+            if (x, y) in chamber:
+                c = "#"
+            elif (x, y) in rock_set:
+                c = "@"
+            row.append(c)
+        print(f"{''.join(row)} {y}")
+    print("")
+
+
+def get_jet_index(j, input):
+    return j % len(input)
 
 
 def simulate(input: str, n: int):
-    jets = jets_iter(input)
-    rocks = rocks_iter()
+    input = input.strip()
     height = 0
-    chamber = {}
+    chamber = set()
+    j = 0
+    memo = defaultdict(int)
+    cycle = []
+    cycled = False
+    heights = []
     for i in range(n):
+        rock = i % 5
+        jet_index = get_jet_index(j, input)
+        initial_state = (rock, jet_index)
+        if initial_state in memo:
+            if (
+                len(cycle) > 0
+                and cycle[0][1] == initial_state
+                and memo[initial_state] == 2
+            ):
+                cycled = True
+                break
+            cycle.append((i, initial_state))
+        else:
+            cycle = []
+        memo[initial_state] += 1
+
         x, y = 2, height + 3
-        rock = next(rocks)
         falling = True
         while falling:
-            jet = next(jets)
+            jet = input[jet_index]
             move = moves[jet]
             x, y = move(rock, x, y, chamber)
             x, y, falling = move_down(rock, x, y, chamber)
+            j += 1
+            jet_index = get_jet_index(j, input)
 
         for dx, dy in blocks[rock]:
-            chamber[(x + dx, y + dy)] = "#"
-        height = max(height, y + heights[rock])
+            chamber.add((x + dx, y + dy))
+        height = max(height, y + dy + 1)
+        heights.append(height)
+
+    if not cycled:
+        return height
+
+    cycle_start, _ = cycle[0]
+    pre_cycle = cycle_start - 1
+    cycle_length = len(cycle)
+
+    h0 = heights[pre_cycle]
+    h1 = heights[pre_cycle + cycle_length]
+    cycle_height = h1 - h0
+
+    remaining = n - i
+    complete_remaining = remaining // cycle_length
+    height += complete_remaining * cycle_height
+
+    partial_remaining = remaining % cycle_length
+    if partial_remaining > 0:
+        h2 = heights[pre_cycle + partial_remaining]
+        height += h2 - h0
+
     return height
 
 
