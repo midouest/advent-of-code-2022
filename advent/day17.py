@@ -62,29 +62,6 @@ def move_down(rock, x, y, chamber):
     return x, y - 1, True
 
 
-def debug(chamber, height, rock_state=None):
-    rock_set = {}
-    if rock_state:
-        rock, rx, ry = rock_state
-        rock_set = {(rx + dx, ry + dy) for dx, dy in blocks[rock]}
-
-    for y in range(height - 1, -1, -1):
-        row = []
-        for x in range(7):
-            c = "."
-            if (x, y) in chamber:
-                c = "#"
-            elif (x, y) in rock_set:
-                c = "@"
-            row.append(c)
-        print(f"{''.join(row)} {y}")
-    print("")
-
-
-def get_jet_index(j, input):
-    return j % len(input)
-
-
 def simulate(input: str, n: int):
     input = input.strip()
     height = 0
@@ -96,7 +73,7 @@ def simulate(input: str, n: int):
     heights = []
     for i in range(n):
         rock = i % 5
-        jet_index = get_jet_index(j, input)
+        jet_index = j % len(input)
         initial_state = (rock, jet_index)
         if initial_state in memo:
             if (
@@ -114,12 +91,12 @@ def simulate(input: str, n: int):
         x, y = 2, height + 3
         falling = True
         while falling:
+            jet_index = j % len(input)
             jet = input[jet_index]
             move = moves[jet]
             x, y = move(rock, x, y, chamber)
             x, y, falling = move_down(rock, x, y, chamber)
             j += 1
-            jet_index = get_jet_index(j, input)
 
         for dx, dy in blocks[rock]:
             chamber.add((x + dx, y + dy))
