@@ -3,7 +3,10 @@ from commands.base import Command
 from util import puzzle
 
 
-template = '''def part1(input: str):
+template = '''from util.prelude import *
+
+
+def part1(input: str):
     raise NotImplementedError()
 
 
