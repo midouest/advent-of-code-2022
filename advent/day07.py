@@ -1,5 +1,4 @@
-import re
-from dataclasses import dataclass, field
+from util.prelude import *
 
 pattern = r"(?:\$ (?:cd (/|\.\.|\w+))|dir (\w+)|(\d+) ([a-z\.]+))"
 
@@ -37,7 +36,7 @@ def build_root(input: str) -> Dir:
     root = Dir()
     pwd = root
 
-    for cd, dir, size, file in re.findall(pattern, input):
+    for cd, dir, size, file in findall(pattern, input):
         if cd:
             if cd == "..":
                 path.pop()

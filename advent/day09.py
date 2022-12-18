@@ -1,4 +1,4 @@
-import re
+from util.prelude import *
 
 
 def sign(n):
@@ -33,7 +33,7 @@ dirs = {
 def simulate(input, length):
     rope = [[0, 0] for _ in range(length)]
     visited = set([(0, 0)])
-    for dir, amt in re.findall(r"(R|L|U|D) (\d+)", input):
+    for dir, amt in findall(r"(R|L|U|D) (\d+)", input):
         amt = int(amt)
         axis, step = dirs[dir]
         coords = move(rope, axis, amt, step)

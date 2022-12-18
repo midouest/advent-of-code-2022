@@ -1,5 +1,4 @@
-import re
-from collections import deque
+from util.prelude import *
 
 
 deltas = [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]
@@ -8,7 +7,7 @@ deltas = [(-1, 0, 0), (1, 0, 0), (0, -1, 0), (0, 1, 0), (0, 0, -1), (0, 0, 1)]
 def part1(input: str):
     drops = set()
     total = 0
-    for matches in re.findall(r"(\d+),(\d+),(\d+)", input):
+    for matches in findall(r"(\d+),(\d+),(\d+)", input):
         x, y, z = map(int, matches)
         total += 6
         drops.add((x, y, z))
@@ -40,7 +39,7 @@ def flood(coord, drops, pockets, air):
 
 def part2(input: str):
     drops = set()
-    for matches in re.findall(r"(\d+),(\d+),(\d+)", input):
+    for matches in findall(r"(\d+),(\d+),(\d+)", input):
         drops.add(tuple(map(int, matches)))
 
     pockets = set()

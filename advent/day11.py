@@ -1,8 +1,4 @@
-from math import prod
-from collections import deque, defaultdict
-from operator import add, mul
-from dataclasses import dataclass
-from typing import Callable
+from util.prelude import *
 
 
 @dataclass

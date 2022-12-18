@@ -1,6 +1,4 @@
-from functools import cmp_to_key
-from math import prod
-from util.iterator import chunks
+from util.prelude import *
 
 
 def parse_input(input):

@@ -1,4 +1,4 @@
-from collections import defaultdict
+from util.prelude import *
 
 left = {
     0: [(-1, 0)],

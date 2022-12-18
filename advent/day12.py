@@ -1,5 +1,4 @@
-import math
-from util.search import PathNotFound, Search
+from util.prelude import *
 
 
 def size(map):
@@ -65,7 +64,7 @@ def path_length(map, start):
         path = search.bfs()
         return len(path) - 1
     except PathNotFound:
-        return math.inf
+        return inf
 
 
 def part1(input: str):

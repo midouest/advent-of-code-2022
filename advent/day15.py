@@ -1,6 +1,4 @@
-import re
-from util.math import manhattan
-from operator import itemgetter
+from util.prelude import *
 
 pattern = r"Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)"
 
@@ -9,7 +7,7 @@ def parse_input(input):
     return [
         (sx, sy, bx, by, manhattan((sx, sy), (bx, by)))
         for sx, sy, bx, by in (
-            tuple(map(int, matches)) for matches in re.findall(pattern, input)
+            tuple(map(int, matches)) for matches in findall(pattern, input)
         )
     ]
 

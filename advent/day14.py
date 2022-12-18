@@ -1,6 +1,4 @@
-import re
-from operator import itemgetter
-from collections import Counter
+from util.prelude import *
 
 
 def between(a, b):
@@ -11,7 +9,7 @@ def between(a, b):
 def parse_input(input):
     cave = {}
     for line in input.strip().split("\n"):
-        matches = re.findall("(\d+),(\d+)", line)
+        matches = findall("(\d+),(\d+)", line)
         match = matches[0]
         x1, y1 = map(int, match)
         for match in matches[1:]:

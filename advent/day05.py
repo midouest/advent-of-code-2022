@@ -1,14 +1,13 @@
-import re
-from util.iterator import chunks
+from util.prelude import *
 
 
 def parse_stacks(text):
-    num_stacks = int(re.findall(r"(?: (\d) )[ \n]", text)[-1])
+    num_stacks = int(findall(r"(?: (\d) )[ \n]", text)[-1])
     stacks = []
     for i in range(num_stacks):
         stacks.append([])
 
-    crates = list(reversed(re.findall(r"(?:   |\[([A-Z])\])[ \n]", text)))
+    crates = list(reversed(findall(r"(?:   |\[([A-Z])\])[ \n]", text)))
     for reverse_row in chunks(crates, num_stacks):
         row = reversed(reverse_row)
         for i, crate in enumerate(row):
@@ -36,7 +35,7 @@ def crate_mover_9001(n, src, dst):
 def execute_instructions(text, crane):
     stacks = parse_stacks(text)
 
-    for matches in re.findall(r"move (\d+) from (\d+) to (\d+)", text):
+    for matches in findall(r"move (\d+) from (\d+) to (\d+)", text):
         n, src, dst = map(int, matches)
         src_stack = stacks[src - 1]
         dst_stack = stacks[dst - 1]

@@ -1,4 +1,4 @@
-import re
+from util.prelude import *
 
 
 class ClockCircuit:
@@ -8,7 +8,7 @@ class ClockCircuit:
         self.delegate = delegate
 
     def eval(self, input):
-        for v in re.findall(r"(?:addx|noop)(?: (-?\d+))?", input):
+        for v in findall(r"(?:addx|noop)(?: (-?\d+))?", input):
             self.step()
             if v:
                 self.step()

@@ -1,4 +1,4 @@
-from collections import deque
+from util.prelude import *
 
 
 def find_first_unique_sequence(input, n):

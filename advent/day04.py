@@ -1,4 +1,4 @@
-import re
+from util.prelude import *
 
 
 def overlaps_completely(a1, a2, b1, b2):
@@ -16,7 +16,7 @@ def overlaps_partially(a1, a2, b1, b2):
 
 def count_overlaps(assignments, overlaps):
     total = 0
-    for matches in re.findall(r"(\d+)-(\d+),(\d+)-(\d+)", assignments):
+    for matches in findall(r"(\d+)-(\d+),(\d+)-(\d+)", assignments):
         a1, a2, b1, b2 = map(int, matches)
         if overlaps(a1, a2, b1, b2):
             total += 1

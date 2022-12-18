@@ -1,8 +1,4 @@
-import re
-from dataclasses import dataclass, field
-from util.search import Search
-from operator import attrgetter
-from itertools import permutations
+from util.prelude import *
 
 
 @dataclass
@@ -44,7 +40,7 @@ pattern = r"Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (\w+)(?:
 def parse_input(input: str):
     return {
         v0: Valve(v0, int(rate), [v for v in [v1, v2, v3, v4, v5] if v])
-        for v0, rate, v1, v2, v3, v4, v5 in re.findall(pattern, input)
+        for v0, rate, v1, v2, v3, v4, v5 in findall(pattern, input)
     }
 
 
