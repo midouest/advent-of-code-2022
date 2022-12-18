@@ -9,6 +9,7 @@ from typing import Callable
 from util.iterator import chunks
 from util.math import manhattan
 from util.search import PathNotFound, Search, AStarSearch, DjikstraSearch
+from tqdm import tqdm
 
 __all__ = [
     "defaultdict",
@@ -32,4 +33,5 @@ __all__ = [
     "Search",
     "AStarSearch",
     "DjikstraSearch",
+    "tqdm",
 ]
