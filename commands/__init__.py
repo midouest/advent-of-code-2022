@@ -1,4 +1,4 @@
-from commands.gen import GenCommand
-from commands.run import RunCommand
+from commands.g import G
+from commands.r import R
 
-__all__ = ["GenCommand", "RunCommand"]
+__all__ = ["G", "R"]

@@ -8,16 +8,16 @@
       "name": "cli: run",
       "type": "python",
       "request": "launch",
-      "program": "cli",
-      "args": ["run", "${input:day}", "${input:part}"],
+      "program": "a",
+      "args": ["r", "${input:day}", "${input:part}"],
       "justMyCode": true
     },
     {
       "name": "cli: gen",
       "type": "python",
       "request": "launch",
-      "program": "cli",
-      "args": ["gen", "${input:day}"],
+      "program": "a",
+      "args": ["g", "${input:day}"],
       "justMyCode": true
     }
   ],

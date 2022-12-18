@@ -27,20 +27,22 @@ def test_part2():
 '''
 
 
-class GenCommand(Command):
-    name = "gen"
+class G(Command):
+    name = "g"
+    description = "generate input and solution files for the given day"
 
     def add_arguments(self, parser: ArgumentParser):
         parser.add_argument(
             "day",
             type=int,
             choices=range(1, 26),
-            help="The day to generate",
+            help="the day to generate",
         )
         parser.add_argument(
+            "-i",
             "--input",
             action="store_true",
-            help="Only download the puzzle input",
+            help="only download the puzzle input",
         )
 
     def exec(self, day: int, input: bool):

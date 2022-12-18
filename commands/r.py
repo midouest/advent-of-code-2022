@@ -3,8 +3,9 @@ from commands.base import Command
 from util import puzzle
 
 
-class RunCommand(Command):
-    name = "run"
+class R(Command):
+    name = "r"
+    description = "execute and submit solutions for given days and parts"
 
     def add_arguments(self, parser: ArgumentParser):
         parser.add_argument(
@@ -13,7 +14,7 @@ class RunCommand(Command):
             nargs="?",
             choices=range(1, 26),
             default=0,
-            help="The day to run",
+            help="the day to run",
         )
         parser.add_argument(
             "part",
@@ -24,12 +25,13 @@ class RunCommand(Command):
                 2,
             ),
             default=0,
-            help="The part to run",
+            help="the part to run",
         )
         parser.add_argument(
+            "-s",
             "--submit",
             action="store_true",
-            help="Submit the answer for the given day and part",
+            help="submit the answer for the given day and part",
         )
 
     def exec(self, day: int, part: int, submit: bool):
