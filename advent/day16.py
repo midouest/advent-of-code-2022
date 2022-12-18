@@ -28,26 +28,13 @@ class ValveSearch(Search):
         return node == self.stop
 
 
-def start_valves(valves: dict[str, Valve]):
-    return (
-        valve.name for valve in valves.values() if valve.rate > 0 or valve.name == "AA"
-    )
-
-
-def stop_valves(valves: dict[str, Valve], start_valve: str):
-    return (
-        valve.name
-        for valve in valves.values()
-        if valve.rate > 0 and valve.name != start_valve
-    )
-
-
 def find_paths(valves: dict[str, Valve]) -> dict[tuple[str, str], int]:
     distances = {}
-    for start in start_valves(valves):
-        for stop in stop_valves(valves, start):
-            path = ValveSearch(valves, start, stop).bfs()
-            distances[(start, stop)] = len(path) - 1
+    for start, stop in permutations(valves.values(), 2):
+        if start.name != "AA" and start.rate == 0 or stop.rate == 0:
+            continue
+        path = ValveSearch(valves, start.name, stop.name).bfs()
+        distances[(start.name, stop.name)] = len(path) - 1
     return distances
 
 
@@ -61,7 +48,7 @@ def parse_input(input: str):
     }
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass
 class State:
     time: int
     start: str = "AA"
