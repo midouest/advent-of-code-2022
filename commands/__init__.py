@@ -1,4 +1,7 @@
 from commands.g import G
 from commands.r import R
 
-__all__ = ["G", "R"]
+all_commands = (
+    G,
+    R,
+)

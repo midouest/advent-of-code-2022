@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
-import commands
-
-
-all_commands = list(map(commands.__dict__.get, commands.__all__))
+from commands import all_commands
 
 
 def main():
