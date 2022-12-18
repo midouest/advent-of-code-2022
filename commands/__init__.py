@@ -5,3 +5,5 @@ all_commands = (
     G,
     R,
 )
+
+__all__ = ["all_commands"]
