@@ -2,6 +2,28 @@
 
 Solutions to Advent of Code 2022 in Python
 
+## Requirements
+
+- [Python 3.11](https://www.python.org/downloads/release/python-3110/)
+- [Pipenv](https://pipenv.pypa.io/en/latest/)
+
+## Installation
+
+Pipenv is used to manage dependencies:
+
+```bash
+pipenv install --dev  # install all dependencies
+pipenv shell          # activate the virtualenv in your shell
+```
+
+## Tests
+
+[pytest](https://docs.pytest.org/en/7.2.x/) is used to test solutions on example inputs:
+
+```bash
+python -m pytest  # run the full test suite
+```
+
 ## Command-line interface
 
 Place your advent of code session cookie in the `.session` file in the root of the repository.
@@ -11,8 +33,8 @@ Place your advent of code session cookie in the `.session` file in the root of t
 Download the input for a given day and generate a solution template using the `g` command:
 
 ```bash
-./a g 1     # Download input and create stub solution
-./a g 1 -i  # Download input only
+./a g 1     # download input and create stub solution
+./a g 1 -i  # download input only
 ```
 
 ### Run
