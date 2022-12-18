@@ -1,6 +1,8 @@
 import re
 from dataclasses import dataclass, field
 from util.search import Search
+from operator import attrgetter
+from itertools import permutations
 
 
 @dataclass
@@ -59,24 +61,26 @@ def parse_input(input: str):
     }
 
 
-@dataclass
+@dataclass(eq=True, frozen=True)
 class State:
+    time: int
     start: str = "AA"
     pressure: int = 0
-    time: int = 30
-    opened: set[str] = field(default_factory=set)
+    opened: tuple = field(default_factory=tuple)
+
+    def __hash__(self) -> int:
+        return hash(self.opened)
 
 
-def part1(input: str):
+def explore(input: str, t0: int):
     valves = parse_input(input)
     distances = find_paths(valves)
     stops = [valve.name for valve in valves.values() if valve.rate > 0]
-    frontier = [State()]
+    frontier = [State(t0)]
+    visited = set(frontier)
 
-    totals = []
     while frontier:
         state = frontier.pop()
-        neighbors = []
         for stop in stops:
             if stop in state.opened:
                 continue
@@ -87,21 +91,34 @@ def part1(input: str):
 
             rate = valves[stop].rate
             time = state.time - (distance + 1)
-            pressure = time * rate
-            neighbors.append(
-                State(stop, state.pressure + pressure, time, state.opened | set([stop]))
-            )
+            pressure = state.pressure + time * rate
+            opened = state.opened + (stop,)
+            neighbor = State(time, stop, pressure, opened)
+            frontier.append(neighbor)
+            visited.add(neighbor)
 
-        if not neighbors:
-            totals.append(state.pressure)
-        else:
-            frontier.extend(neighbors)
+    return visited
 
-    return max(totals)
+
+def part1(input: str):
+    return max(map(attrgetter("pressure"), explore(input, 30)))
 
 
 def part2(input: str):
-    raise NotImplementedError()
+    states = explore(input, 26)
+
+    candidates = {}
+    for state in states:
+        key = tuple(sorted(state.opened))
+        other = candidates.get(key, state)
+        candidates[key] = max(state, other, key=attrgetter("pressure"))
+
+    best = 0
+    for you, elph in permutations(candidates.values(), 2):
+        if set(you.opened).isdisjoint(elph.opened):
+            best = max(best, you.pressure + elph.pressure)
+
+    return best
 
 
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
