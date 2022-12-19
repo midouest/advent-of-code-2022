@@ -1,8 +1,8 @@
 from collections import defaultdict, deque, Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from functools import cmp_to_key
 from itertools import permutations
-from math import prod, inf
+from math import prod, inf, ceil
 from operator import add, mul, attrgetter, itemgetter
 from re import findall
 from typing import Callable
@@ -17,10 +17,12 @@ __all__ = [
     "Counter",
     "dataclass",
     "field",
+    "replace",
     "cmp_to_key",
     "permutations",
     "prod",
     "inf",
+    "ceil",
     "add",
     "mul",
     "attrgetter",
