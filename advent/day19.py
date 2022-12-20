@@ -40,38 +40,33 @@ class State:
         return State(self.time - dt, materials, robots)
 
 
-@dataclass
-class RobotSearch(DjikstraSearch[State]):
-    start: State
-    stop: int
-    blueprint: Blueprint
-
-    def initial(self):
-        return [self.start]
-
-    def goal(self, current: State):
-        return current.robots[3] >= self.start.robots[3] + self.stop
-
-    def neighbors(self, current: State) -> Iterable[State]:
-        buildable_times = current.buildable_times(self.blueprint)
-        for i, dt in enumerate(buildable_times):
-            if dt < current.time:
-                yield current.build(i, self.blueprint, dt)
-
-    def distance(self, current: State, neighbor: State) -> int:
-        return current.time - neighbor.time
-
-
 def maximize_geodes(blueprint):
-    state = State()
-    delta = 2
-    while delta > 0 and state.time > 0:
-        path = RobotSearch(state, delta, blueprint).djikstra()
-        if not path:
-            delta -= 1
-            continue
-        state = path[-1]
-    return state.materials[3] + state.time * state.robots[3]
+    frontier = [State()]
+    visited = set(frontier)
+
+    build_limits = [max(costs) for costs in zip(*blueprint)] + [inf]
+
+    best = 0
+    while frontier:
+        state = frontier.pop()
+
+        neighbors = []
+        buildable_times = state.buildable_times(blueprint)
+        for i, dt in enumerate(buildable_times):
+            if dt < state.time and all(
+                l <= r for l, r in zip(state.robots, build_limits)
+            ):
+                neighbor = state.build(i, blueprint, dt)
+                neighbors.append(neighbor)
+                visited.add(neighbor)
+
+        if neighbors:
+            frontier.extend(neighbors)
+        else:
+            geodes = state.materials[3] + state.time * state.robots[3]
+            best = max(best, geodes)
+
+    return best
 
 
 def part1(input: str):
