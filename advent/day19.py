@@ -17,7 +17,7 @@ def parse_input(input: str) -> list[Blueprint]:
 
 @dataclass(eq=True, frozen=True, order=True)
 class State:
-    time: int = 24
+    time: int
     materials: tuple = (0, 0, 0, 0)
     robots: tuple = (1, 0, 0, 0)
 
@@ -40,21 +40,36 @@ class State:
         return State(self.time - dt, materials, robots)
 
 
-def maximize_geodes(blueprint):
-    frontier = [State()]
+def maximize_geodes(blueprint, time):
+    frontier = [State(time)]
     visited = set(frontier)
 
-    build_limits = [max(costs) for costs in zip(*blueprint)] + [inf]
+    build_limits = [max(costs) for costs in zip(*blueprint)]
+    bests = defaultdict(int)
 
     best = 0
     while frontier:
         state = frontier.pop()
 
+        geodes = state.materials[3]
+        best_at_time = bests[state.time]
+        if geodes > best_at_time:
+            bests[state.time] = geodes
+        elif best_at_time > geodes + 2:
+            continue
+
         neighbors = []
         buildable_times = state.buildable_times(blueprint)
         for i, dt in enumerate(buildable_times):
-            if dt < state.time and all(
-                l <= r for l, r in zip(state.robots, build_limits)
+            if (
+                dt < state.time
+                and all(r <= limit for r, limit in zip(state.robots[:3], build_limits))
+                and (
+                    state.time >= time // 3
+                    or all(
+                        r >= expected for r, expected in zip(state.robots, (1, 1, 1, 0))
+                    )
+                )
             ):
                 neighbor = state.build(i, blueprint, dt)
                 neighbors.append(neighbor)
@@ -63,21 +78,21 @@ def maximize_geodes(blueprint):
         if neighbors:
             frontier.extend(neighbors)
         else:
-            geodes = state.materials[3] + state.time * state.robots[3]
-            best = max(best, geodes)
+            best = max(best, geodes + state.time * state.robots[3])
 
     return best
 
 
 def part1(input: str):
     return sum(
-        i * maximize_geodes(blueprint)
+        i * maximize_geodes(blueprint, 24)
         for i, blueprint in tqdm(list(enumerate(parse_input(input), 1)))
     )
 
 
 def part2(input: str):
-    raise NotImplementedError()
+    blueprints = parse_input(input)
+    return prod(maximize_geodes(bp, 32) for bp in tqdm(blueprints[:3]))
 
 
 example = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
@@ -85,14 +100,9 @@ Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsid
 """
 
 
-def test_maximize():
-    assert maximize_geodes(((4, 0, 0), (2, 0, 0), (3, 14, 0), (2, 0, 7))) == 9
-    assert maximize_geodes(((2, 0, 0), (3, 0, 0), (3, 8, 0), (3, 0, 12))) == 12
-
-
 def test_part1():
     assert part1(example) == 33
 
 
 def test_part2():
-    assert part2(example) == 0
+    assert part2(example) == 56 * 62
