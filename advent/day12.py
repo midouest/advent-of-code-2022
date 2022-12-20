@@ -60,11 +60,10 @@ def parse_input(input: str):
 
 def path_length(map, start):
     search = HeightMapSearch(map, start)
-    try:
-        path = search.bfs()
-        return len(path) - 1
-    except PathNotFound:
+    path = search.bfs()
+    if not path:
         return inf
+    return len(path) - 1
 
 
 def part1(input: str):

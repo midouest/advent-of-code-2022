@@ -1,9 +1,12 @@
 from util.prelude import *
 
+
+Cost = tuple[int, int, int]
+Blueprint = tuple[Cost, Cost, Cost, Cost]
 pattern = r"Blueprint \d+: Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian."
 
 
-def parse_input(input: str):
+def parse_input(input: str) -> list[Blueprint]:
     blueprints = []
     for matches in findall(pattern, input):
         a1, b1, c1, c2, d1, d2 = map(int, matches)
@@ -12,20 +15,13 @@ def parse_input(input: str):
     return blueprints
 
 
-@dataclass(eq=True, frozen=True)
+@dataclass(eq=True, frozen=True, order=True)
 class State:
     time: int = 24
     materials: tuple = (0, 0, 0, 0)
     robots: tuple = (1, 0, 0, 0)
 
-    def buildable(self, bp):
-        return (
-            i
-            for i, costs in enumerate(bp)
-            if all(m >= c for m, c in zip(self.materials, costs))
-        )
-
-    def time_to_buildable(self, bp):
+    def buildable_times(self, bp):
         return (
             max(
                 0 if m >= c else ceil((c - m) / r) if r > 0 else inf
@@ -44,31 +40,46 @@ class State:
         return State(self.time - dt, materials, robots)
 
 
+@dataclass
+class GeodeSearch(AStarSearch[State]):
+    start: State
+    stop: int
+    blueprint: Blueprint
+
+    def initial(self):
+        return [self.start]
+
+    def goal(self, current: State):
+        return current.robots[3] == self.start.robots[3] + self.stop
+
+    def neighbors(self, current: State) -> Iterable[State]:
+        buildable_times = current.buildable_times(self.blueprint)
+        for i, dt in enumerate(buildable_times):
+            if dt < current.time:
+                yield current.build(i, self.blueprint, dt)
+
+    def distance(self, current: State, neighbor: State) -> int:
+        return current.time - neighbor.time
+
+
 def maximize_geodes(blueprint):
-    frontier = [State()]
-    visited = set(frontier)
     best = 0
-
-    while frontier:
-        state = frontier.pop()
-        if state.time == 0:
-            best = max(best, state.materials[3])
-            continue
-
-        for i, dt in enumerate(state.time_to_buildable(blueprint)):
-            if dt < state.time:
-                built = state.build(i, blueprint, dt)
-                if built not in visited:
-                    frontier.append(built)
-                    visited.add(built)
-
+    for i in count(start=1):
+        path = GeodeSearch(State(), i, blueprint).djikstra()
+        if not path:
+            break
+        state = path[-1]
+        geodes = state.materials[3] + state.time * state.robots[3]
+        if geodes < best:
+            break
+        best = geodes
     return best
 
 
 def part1(input: str):
     return sum(
         i * maximize_geodes(blueprint)
-        for i, blueprint in enumerate(parse_input(input), 1)
+        for i, blueprint in tqdm(list(enumerate(parse_input(input), 1)))
     )
 
 

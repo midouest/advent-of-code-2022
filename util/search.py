@@ -1,19 +1,14 @@
 import math
 import heapq
 from abc import ABC, abstractmethod
-from typing import TypeVar, Hashable, Callable, Iterable
+from typing import TypeVar, Hashable, Callable, Iterable, Generic
 from collections import deque, defaultdict
 
 
 Node = TypeVar("Node", bound=Hashable)
-Path = list[Node]
 
 
-class PathNotFound(Exception):
-    ...
-
-
-class Search(ABC):
+class Search(Generic[Node], ABC):
     @abstractmethod
     def initial(self) -> Iterable[Node]:
         raise NotImplementedError()
@@ -30,7 +25,7 @@ class Search(ABC):
         self,
         current: Node,
         parents: dict[Node, Node],
-    ) -> Path:
+    ) -> list[Node]:
         path = [current]
         while current in parents:
             current = parents[current]
@@ -38,7 +33,7 @@ class Search(ABC):
         path.reverse()
         return path
 
-    def search(self, take: Callable[[deque], Node]) -> Path:
+    def search(self, take: Callable[[deque[Node]], Node]) -> list[Node] | None:
         frontier: deque[Node] = deque(self.initial())
         visited: set[Node] = set(frontier)
         parents: dict[Node, Node] = {}
@@ -54,16 +49,16 @@ class Search(ABC):
                     parents[neighbor] = current
                     frontier.append(neighbor)
 
-        raise PathNotFound()
+        return None
 
-    def bfs(self) -> Path:
+    def bfs(self) -> list[Node] | None:
         return self.search(lambda frontier: frontier.popleft())
 
-    def dfs(self) -> Path:
+    def dfs(self) -> list[Node] | None:
         return self.search(lambda frontier: frontier.pop())
 
 
-class AStarSearch(Search):
+class AStarSearch(Search[Node]):
     @abstractmethod
     def distance(self, current: Node, neighbor: Node) -> int:
         raise NotImplementedError()
@@ -72,7 +67,7 @@ class AStarSearch(Search):
     def heuristic(self, node: Node) -> int:
         raise NotImplementedError()
 
-    def astar(self) -> Path:
+    def astar(self) -> list[Node] | None:
         initial = self.initial()
 
         g_score: dict[Node, float] = defaultdict(lambda: math.inf)
@@ -104,12 +99,12 @@ class AStarSearch(Search):
                         open_set.add(neighbor)
                         heapq.heappush(open_set_priorities, (f, neighbor))  # type: ignore
 
-        raise PathNotFound()
+        return None
 
 
-class DjikstraSearch(AStarSearch):
+class DjikstraSearch(AStarSearch[Node]):
     def heuristic(self, node: Node) -> int:
         return 0
 
-    def djikstra(self) -> Path:
+    def djikstra(self) -> list[Node]:
         return self.astar()
