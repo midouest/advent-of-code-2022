@@ -13,6 +13,9 @@ class Path(Generic[Node]):
         self.nodes = nodes
         self.visited = visited
 
+    def __str__(self) -> str:
+        return str(self.nodes)
+
     def __len__(self):
         return len(self.nodes)
 

@@ -41,7 +41,7 @@ class State:
 
 
 @dataclass
-class GeodeSearch(AStarSearch[State]):
+class RobotSearch(DjikstraSearch[State]):
     start: State
     stop: int
     blueprint: Blueprint
@@ -50,7 +50,7 @@ class GeodeSearch(AStarSearch[State]):
         return [self.start]
 
     def goal(self, current: State):
-        return current.robots[3] == self.start.robots[3] + self.stop
+        return current.robots[3] >= self.start.robots[3] + self.stop
 
     def neighbors(self, current: State) -> Iterable[State]:
         buildable_times = current.buildable_times(self.blueprint)
@@ -63,17 +63,15 @@ class GeodeSearch(AStarSearch[State]):
 
 
 def maximize_geodes(blueprint):
-    best = 0
-    for i in count(start=1):
-        path = GeodeSearch(State(), i, blueprint).djikstra()
+    state = State()
+    delta = 2
+    while delta > 0 and state.time > 0:
+        path = RobotSearch(state, delta, blueprint).djikstra()
         if not path:
-            break
+            delta -= 1
+            continue
         state = path[-1]
-        geodes = state.materials[3] + state.time * state.robots[3]
-        if geodes < best:
-            break
-        best = geodes
-    return best
+    return state.materials[3] + state.time * state.robots[3]
 
 
 def part1(input: str):

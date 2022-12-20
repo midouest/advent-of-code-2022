@@ -8,6 +8,7 @@ from re import findall
 from typing import Callable, Iterable
 from util.iterator import chunks
 from util.math import manhattan
+from util.perf import timeit
 from util.search import Search, AStarSearch, DjikstraSearch
 from tqdm import tqdm
 
@@ -33,6 +34,7 @@ __all__ = [
     "Iterable",
     "chunks",
     "manhattan",
+    "timeit",
     "Search",
     "AStarSearch",
     "DjikstraSearch",
