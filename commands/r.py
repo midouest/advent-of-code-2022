@@ -33,8 +33,14 @@ class R(Command):
             action="store_true",
             help="submit the answer for the given day and part",
         )
+        parser.add_argument(
+            "-x",
+            "--example",
+            action="store_true",
+            help="run the solution on the example input",
+        )
 
-    def exec(self, day: int, part: int, submit: bool):
+    def exec(self, day: int, part: int, submit: bool, example: bool):
         days = range(1, 26) if day == 0 else [day]
         parts = range(1, 3) if part == 0 else [part]
 
@@ -44,10 +50,17 @@ class R(Command):
             except:
                 break
 
-            puzzle_input = puzzle.read(module.__file__)
-
             print(f"day {d}")
             print("---")
+
+            puzzle_input = puzzle.read(module.__file__)
+            if example:
+                try:
+                    puzzle_input = puzzle.get_example(module)
+                except:
+                    print("Example input not found. Falling back to puzzle input...")
+                    pass
+
             for p in parts:
                 try:
                     part_func = puzzle.get_part_function(module, p)

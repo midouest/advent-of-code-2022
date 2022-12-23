@@ -63,6 +63,10 @@ def load_module(day: int) -> object:
     return import_module(module_name)
 
 
+def get_example(module: object) -> str:
+    return getattr(module, "example")
+
+
 def get_part_function(module: object, part: int) -> Any:
     part_name = f"part{part}"
     return getattr(module, part_name)
