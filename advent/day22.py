@@ -8,6 +8,14 @@ def parse_input(input: str) -> tuple[list[str], list[int | str]]:
     board_input, path_input = input.rstrip().split("\n\n")
     board = board_input.split("\n")
 
+    path = [
+        int(move) if move else turn
+        for move, turn in findall(r"(\d+)|([LR])", path_input)
+    ]
+    return board, path
+
+
+def wrap_flat(board):
     def find_wrap_y(x, y):
         for wy in range(len(board) - 1, y, -1):
             line = board[wy]
@@ -37,19 +45,13 @@ def parse_input(input: str) -> tuple[list[str], list[int | str]]:
                 wrap_to[(px, y, -1, 0)] = (wx, y)
                 wrap_to[(wx + 1, y, 1, 0)] = (x, y)
 
-    path = [
-        int(move) if move else turn
-        for move, turn in findall(r"(\d+)|([LR])", path_input)
-    ]
-    return board, wrap_to, path
+    return wrap_to
 
 
 deltas = ((1, 0), (0, 1), (-1, 0), (0, -1))
 
 
-def part1(input: str):
-    board, wrap_to, path = parse_input(input)
-
+def follow_directions(board, wrap_to, path):
     x, y = board[0].index("."), 0
     dx, dy = 1, 0
     face = 0
@@ -71,6 +73,12 @@ def part1(input: str):
             dx, dy = deltas[face]
 
     return 1000 * (y + 1) + 4 * (x + 1) + face
+
+
+def part1(input: str):
+    board, path = parse_input(input)
+    wrap_to = wrap_flat(board)
+    return follow_directions(board, wrap_to, path)
 
 
 def part2(input: str):
@@ -99,4 +107,4 @@ def test_part1():
 
 
 def test_part2():
-    assert part2(example) == 0
+    assert part2(example) == 5031
