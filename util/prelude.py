@@ -6,6 +6,7 @@ from math import prod, inf, ceil
 from operator import add, mul, attrgetter, itemgetter
 from re import findall
 from typing import Callable, Iterable
+from util.geom import Vec2d, Vec3d, rotate_2d, rotate_3d, invert_3d, absolute_3d
 from util.iterator import chunks
 from util.math import manhattan
 from util.perf import timeit
@@ -41,4 +42,10 @@ __all__ = [
     "AStarSearch",
     "DjikstraSearch",
     "tqdm",
+    "Vec2d",
+    "Vec3d",
+    "rotate_2d",
+    "rotate_3d",
+    "invert_3d",
+    "absolute_3d",
 ]

@@ -36,15 +36,64 @@ def wrap_flat(board):
             py = y - 1
             if y == 0 or x >= len(board[py]) or board[py][x] == EMPTY:
                 wy = find_wrap_y(x, y)
-                wrap_to[(x, py, 0, -1)] = (x, wy)
-                wrap_to[(x, wy + 1, 0, 1)] = (x, y)
+                wrap_to[(x, py, 0, -1)] = (x, wy, 0, -1)
+                wrap_to[(x, wy + 1, 0, 1)] = (x, y, 0, 1)
 
             px = x - 1
             if x == 0 or line[px] == EMPTY:
                 wx = find_wrap_x(x, y)
-                wrap_to[(px, y, -1, 0)] = (wx, y)
-                wrap_to[(wx + 1, y, 1, 0)] = (x, y)
+                wrap_to[(px, y, -1, 0)] = (wx, y, -1, 0)
+                wrap_to[(wx + 1, y, 1, 0)] = (x, y, 1, 0)
 
+    return wrap_to
+
+
+@dataclass
+class Side:
+    normal: Vec3d
+    up: Vec3d
+    right: Vec3d
+
+
+def fold_board(board, size):
+    initial = (board[0].index("."), 0)
+    sides = {initial: Side(normal=(0, 0, 1), up=(0, 1, 0), right=(1, 0, 0))}
+    frontier = [initial]
+
+    size_deltas = [(-size, 0), (size, 0), (0, size), (0, -size)]
+    while frontier:
+        x, y = current = frontier.pop()
+        side = sides[current]
+        for dx, dy in size_deltas:
+            nx, ny = neighbor = x + dx, y + dy
+            if neighbor in sides or ny < 0 or ny >= len(board):
+                continue
+            line = board[ny]
+            if nx < 0 or nx >= len(line) or line[nx] == EMPTY:
+                continue
+
+            if dx < 0:
+                rot = absolute_3d(side.up)
+            elif dx > 0:
+                rot = invert_3d(absolute_3d(side.up))
+            elif dy > 0:
+                rot = absolute_3d(side.right)
+            elif dy < 0:
+                rot = invert_3d(absolute_3d(side.right))
+
+            normal = rotate_3d(side.normal, rot)
+            up = rotate_3d(side.up, rot)
+            right = rotate_3d(side.right, rot)
+            sides[neighbor] = Side(normal, up, right)
+
+            frontier.append(neighbor)
+
+    return sides
+
+
+def wrap_box(board, size):
+    wrap_to = {}
+    sides = fold_board(board, size)
     return wrap_to
 
 
@@ -59,11 +108,11 @@ def follow_directions(board, wrap_to, path):
     for dir in path:
         if type(dir) == int:
             for _ in range(dir):
-                move_to = (x + dx, y + dy)
-                nx, ny = wrap_to.get(move_to + (dx, dy), move_to)
+                move = (x + dx, y + dy, dx, dy)
+                nx, ny, ndx, ndy = wrap_to.get(move, move)
                 if board[ny][nx] == "#":
                     break
-                x, y = nx, ny
+                x, y, dx, dy = nx, ny, ndx, ndy
         else:
             if dir == "L":
                 face -= 1
@@ -81,8 +130,14 @@ def part1(input: str):
     return follow_directions(board, wrap_to, path)
 
 
+def trace_path(input: str, size: int):
+    board, path = parse_input(input)
+    wrap_to = wrap_box(board, size)
+    return follow_directions(board, wrap_to, path)
+
+
 def part2(input: str):
-    raise NotImplementedError()
+    return trace_path(input, 50)
 
 
 example = """        ...#
@@ -107,4 +162,4 @@ def test_part1():
 
 
 def test_part2():
-    assert part2(example) == 5031
+    assert trace_path(example, 4) == 5031
