@@ -1,8 +1,8 @@
-Vec2d = tuple[int, int]
-Vec3d = tuple[int, int, int]
+Vec2D = tuple[int, int]
+Vec3D = tuple[int, int, int]
 
 
-def rotate_2d(v: Vec2d, z: int) -> Vec2d:
+def rotate_2d(v: Vec2D, z: int) -> Vec2D:
     x, y = v
     if z > 0:
         return (-y, x)
@@ -25,17 +25,17 @@ def test_rotate_2d_ccw():
     assert rotate_2d((0, 1), -1) == (1, 0)
 
 
-def absolute_3d(v: Vec3d) -> Vec3d:
+def absolute_3d(v: Vec3D) -> Vec3D:
     x, y, z = v
     return (abs(x), abs(y), abs(z))
 
 
-def invert_3d(v: Vec3d) -> Vec3d:
+def invert_3d(v: Vec3D) -> Vec3D:
     x, y, z = v
     return (-x, -y, -z)
 
 
-def rotate_3d(v: Vec3d, r: Vec2d) -> Vec3d:
+def rotate_3d(v: Vec3D, r: Vec2D) -> Vec3D:
     x, y, z = v
     rx, ry, rz = r
     if rx > 0:

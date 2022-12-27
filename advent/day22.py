@@ -48,52 +48,63 @@ def wrap_flat(board):
     return wrap_to
 
 
-@dataclass
-class Side:
-    normal: Vec3d
-    up: Vec3d
-    right: Vec3d
+def find_sides(board, size):
+    x0, y0 = coord0 = initial = board[0].index("."), 0
+    x1, y1 = coord1 = x0 + size - 1, y0
+    sides = [(coord0, coord1)]
+    max_y = len(board) - 1
 
+    while coord1 != initial:
+        if x0 == x1:
+            if y1 > y0:  # pointing down
+                neighbors = (
+                    ((x1 + 1, y1 + 1), (x1 + size, y1 + 1)),
+                    ((x1, y1 + 1), (x1, y1 + size)),
+                    ((x1, y1), (x1 - size + 1, y1)),
+                )
+            else:  # pointing up
+                neighbors = (
+                    ((x1 - 1, y1 - 1), (x1 - size, y1 - 1)),
+                    ((x1, y1 - 1), (x1, y1 - size)),
+                    ((x1, y1), (x1 + size - 1, y1)),
+                )
+        elif y0 == y1:
+            if x1 > x0:  # pointing right
+                neighbors = (
+                    ((x1 + 1, y1 - 1), (x1 + 1, y1 - size)),
+                    ((x1 + 1, y1), (x1 + size, y1)),
+                    ((x1, y1), (x1, y1 + size - 1)),
+                )
+            else:  # pointing left
+                neighbors = (
+                    ((x1 - 1, y1 + 1), (x1 - 1, y1 + size)),
+                    ((x1 - 1, y1), (x1 - size, y1)),
+                    ((x1, y1), (x1, y1 - size + 1)),
+                )
 
-def fold_board(board, size):
-    initial = (board[0].index("."), 0)
-    sides = {initial: Side(normal=(0, 0, 1), up=(0, 1, 0), right=(1, 0, 0))}
-    frontier = [initial]
-
-    size_deltas = [(-size, 0), (size, 0), (0, size), (0, -size)]
-    while frontier:
-        x, y = current = frontier.pop()
-        side = sides[current]
-        for dx, dy in size_deltas:
-            nx, ny = neighbor = x + dx, y + dy
-            if neighbor in sides or ny < 0 or ny >= len(board):
+        for side in neighbors:
+            (x0, y0), (x1, y1) = coord0, coord1 = side
+            if y0 < 0 or y1 < 0 or y0 > max_y or y1 > max_y:
                 continue
-            line = board[ny]
-            if nx < 0 or nx >= len(line) or line[nx] == EMPTY:
+            line0, line1 = board[y0], board[y1]
+            if (
+                x0 < 0
+                or x0 > len(line0) - 1
+                or line0[x0] == EMPTY
+                or x1 < 0
+                or x1 > len(line1) - 1
+                or line1[x1] == EMPTY
+            ):
                 continue
-
-            if dx < 0:
-                rot = absolute_3d(side.up)
-            elif dx > 0:
-                rot = invert_3d(absolute_3d(side.up))
-            elif dy > 0:
-                rot = absolute_3d(side.right)
-            elif dy < 0:
-                rot = invert_3d(absolute_3d(side.right))
-
-            normal = rotate_3d(side.normal, rot)
-            up = rotate_3d(side.up, rot)
-            right = rotate_3d(side.right, rot)
-            sides[neighbor] = Side(normal, up, right)
-
-            frontier.append(neighbor)
+            sides.append(side)
+            break
 
     return sides
 
 
 def wrap_box(board, size):
     wrap_to = {}
-    sides = fold_board(board, size)
+    sides = find_sides(board, size)
     return wrap_to
 
 
