@@ -167,18 +167,6 @@ def wrap_box(board, size):
     return wrap_to
 
 
-def debug(board, visited):
-    for y, line in enumerate(board):
-        out = []
-        for x, c in enumerate(line):
-            face = visited.get((x, y))
-            if face is not None:
-                c = ">v<^"[face]
-            out.append(c)
-        print("".join(out))
-    print("")
-
-
 deltas = ((1, 0), (0, 1), (-1, 0), (0, -1))
 
 
