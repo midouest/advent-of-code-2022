@@ -46,12 +46,27 @@ def tick(elves: set[Vec2D], d0: int):
         elves.add(final)
 
 
-def count_empty(elves: set[Vec2D]) -> int:
+def get_bounds(elves: set[Vec2D]) -> tuple[int, int, int, int]:
     x0, _ = min(elves, key=get_x)
     x1, _ = max(elves, key=get_x)
     _, y0 = min(elves, key=get_y)
     _, y1 = max(elves, key=get_y)
-    return (x1 - x0 + 1) * (y1 - y0 + 1) - len(elves)
+    return x0, x1 + 1, y0, y1 + 1
+
+
+def count_empty(elves: set[Vec2D]) -> int:
+    x0, x1, y0, y1 = get_bounds(elves)
+    return (x1 - x0) * (y1 - y0) - len(elves)
+
+
+def debug(elves: set[Vec2D]):
+    x0, x1, y0, y1 = get_bounds(elves)
+    for y in range(y0, y1):
+        out = ""
+        for x in range(x0, x1):
+            out += "#" if (x, y) in elves else "."
+        print(out)
+    print("")
 
 
 def part1(input: str):
@@ -67,12 +82,18 @@ def part2(input: str):
     raise NotImplementedError()
 
 
-example = """.....
-..##.
-..#..
-.....
-..##.
-.....
+example = """..............
+..............
+.......#......
+.....###.#....
+...#...#.#....
+....#...##....
+...#.###......
+...##.#.##....
+....#..#......
+..............
+..............
+..............
 """
 
 
