@@ -123,9 +123,7 @@ def wrap_box(board, size):
     sides, corners = find_sides(board, size)
     visited = set()
 
-    for i, (corner, (a, b)) in enumerate(zip(corners, pairwise(sides))):
-        if corner != -90:
-            continue
+    def wrap_sides(a, b):
         wrap_a = irange_2d(a.p2, a.p1, invert_2d(a.delta))
         wrap_b = irange_2d(b.p1, b.p2, b.delta)
         for wa, wb in zip(wrap_a, wrap_b):
@@ -133,16 +131,15 @@ def wrap_box(board, size):
             wrap_to[add_2d(wb, b.normal) + b.normal] = wa + invert_2d(a.normal)
         visited.update([a, b])
 
+    for i, (corner, (a, b)) in enumerate(zip(corners, pairwise(sides))):
+        if corner != -90:
+            continue
+        wrap_sides(a, b)
+
         ai, bi = (i - 1) % len(sides), (i + 2) % len(sides)
         a, b = sides[ai], sides[bi]
-        if a.normal != b.normal:
-            continue
-        wrap_a = irange_2d(a.p2, a.p1, invert_2d(a.delta))
-        wrap_b = irange_2d(b.p1, b.p2, b.delta)
-        for wa, wb in zip(wrap_a, wrap_b):
-            wrap_to[add_2d(wa, a.normal) + a.normal] = wb + invert_2d(b.normal)
-            wrap_to[add_2d(wb, b.normal) + b.normal] = wa + invert_2d(a.normal)
-        visited.update([a, b])
+        if a.normal == b.normal:
+            wrap_sides(a, b)
 
     remaining = set(sides) - visited
     for a in remaining:
@@ -155,14 +152,8 @@ def wrap_box(board, size):
             if unvisited:
                 b = unvisited.pop()
                 break
-        if not b:
-            continue
-        wrap_a = irange_2d(a.p2, a.p1, invert_2d(a.delta))
-        wrap_b = irange_2d(b.p1, b.p2, b.delta)
-        for wa, wb in zip(wrap_a, wrap_b):
-            wrap_to[add_2d(wa, a.normal) + a.normal] = wb + invert_2d(b.normal)
-            wrap_to[add_2d(wb, b.normal) + b.normal] = wa + invert_2d(a.normal)
-        visited.update([a, b])
+        if b:
+            wrap_sides(a, b)
 
     return wrap_to
 
