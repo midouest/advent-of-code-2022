@@ -146,14 +146,12 @@ def wrap_box(board, size):
         if a in visited:
             continue
         i = sides.index(a)
-        b = None
         for j in [5, 7]:
             unvisited = {sides[(i - k) % len(sides)] for k in [-j, j]} - visited
             if unvisited:
                 b = unvisited.pop()
                 break
-        if b:
-            wrap_sides(a, b)
+        wrap_sides(a, b)
 
     return wrap_to
 
