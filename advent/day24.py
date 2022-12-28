@@ -2,12 +2,14 @@ from util.prelude import *
 
 
 Valley = dict[Vec2D, str]
+Prediction = tuple[int, int, str]
+deltas = {"^": (0, -1), "v": (0, 1), "<": (-1, 0), ">": (1, 0)}
 
 
 def parse_input(input: str) -> tuple[Valley, Vec2D, Vec2D, Vec2D]:
     lines = input.strip().split("\n")
-    x_start = lines[0].index(".")
-    x_goal = lines[-1].index(".")
+    x0 = lines[0].index(".") - 1
+    xn = lines[-1].index(".") - 1
     valley = {
         (x, y): c
         for y, line in enumerate(lines[1:-1])
@@ -15,33 +17,63 @@ def parse_input(input: str) -> tuple[Valley, Vec2D, Vec2D, Vec2D]:
         if c != "."
     }
     w, h = len(lines[0][1:-1]), len(lines[1:-1])
-    return valley, (w, h), (x_start, -1), (x_goal, h)
+    return valley, (w, h), (x0, -1), (xn, h)
 
 
-def tick(prev_valley: Valley, size: Vec2D) -> Valley:
+@dataclass
+class Blizzard:
+    data: dict[Vec2D : list[Prediction]]
+    size: Vec2D
+
+    def clear(self, coord: Vec2D, t: int) -> bool:
+        return all(t % div != rem for div, rem, _ in self.data[coord])
+
+    def debug(self, coord: Vec2D, t: int) -> str:
+        return "".join([c for div, rem, c in self.data[coord] if t % div == rem])
+
+    def dump(self, t: int) -> list[str]:
+        w, h = self.size
+        lines = []
+        for y in range(h):
+            line = ""
+            for x in range(w):
+                bs = self.debug((x, y), t)
+                c = "."
+                if len(bs) == 1:
+                    c = bs
+                elif len(bs) > 9:
+                    c = "*"
+                elif len(bs) > 0:
+                    c = str(len(bs))
+                line += c
+            lines.append(line)
+        return lines
+
+    def print(self, t: int):
+        lines = self.dump(t)
+        for line in lines:
+            print(line)
+        print("")
+
+
+def predict(valley: Valley, size: Vec2D):
     w, h = size
-    next_valley = defaultdict(str)
-    for y in range(1, h - 1):
-        for x in range(1, w - 1):
-            blizzards = prev_valley.get((x, y))
-            if not blizzards:
-                continue
-            for c in blizzards:
-                match c:
-                    case "^":
-                        y = (y - 1) % h
-                    case "v":
-                        y = (y + 1) % h
-                    case "<":
-                        x = (x - 1) % w
-                    case ">":
-                        x = (x + 1) % w
-                next_valley[(x, y)] += c
-    return dict(next_valley)
+    predictions = defaultdict(list)
+    for start, c in valley.items():
+        x0, y0 = start
+        dx, dy = step = deltas[c]
+        px, py = dx * w, dy * h
+        tx, ty = (px - 1 if px else 0), (py - 1 if py else 0)
+        period = abs(px or py)
+        stop = (tx + x0, ty + y0)
+        for t, (x, y) in enumerate(irange_2d(start, stop, step)):
+            x %= w
+            y %= h
+            predictions[(x, y)].append((period, t, c))
+    return Blizzard(predictions, size)
 
 
-def find_path(initial: Valley, size: Vec2D, start: Vec2D, finish: Vec2D):
-    memo = [initial]
+def min_time(model: Blizzard, size: Vec2D, start: Vec2D, stop: Vec2D):
     w, h = size
 
     state = (0, start)
@@ -49,37 +81,30 @@ def find_path(initial: Valley, size: Vec2D, start: Vec2D, finish: Vec2D):
     visited = set([state])
 
     while frontier:
-        t, prev_pos = frontier.popleft()
-        t += 1
-        if t >= len(memo):
-            valley = tick(memo[-1], size)
-            memo.append(valley)
-        else:
-            valley = memo[t]
+        t, curr_pos = frontier.popleft()
+        if curr_pos == stop:
+            return t
 
-        for delta in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
-            x, y = next_pos = add_2d(prev_pos, delta)
-            next_state = (t, next_pos)
+        next_t = t + 1
+        for delta in [(1, 0), (0, 1), (-1, 0), (0, -1), (0, 0)]:
+            x, y = next_pos = add_2d(curr_pos, delta)
+            next_state = (next_t, next_pos)
             if (
                 next_state not in visited
                 and x >= 0
                 and x < w
-                and y >= 0
-                and (y < h or next_pos == finish)
-                and next_pos not in valley
+                and (y >= 0 or next_pos == start)
+                and (y < h or next_pos == stop)
+                and model.clear(next_pos, next_t)
             ):
                 frontier.append(next_state)
                 visited.add(next_state)
 
-        if (t - 1, prev_pos) not in visited and prev_pos not in valley:
-            next_state = (t, prev_pos)
-            frontier.append(next_state)
-            visited.add(next_state)
-
 
 def part1(input: str):
-    valley, size, start, finish = parse_input(example)
-    find_path(valley, size, start, finish)
+    valley, size, start, stop = parse_input(input)
+    model = predict(valley, size)
+    return min_time(model, size, start, stop)
 
 
 def part2(input: str):
@@ -93,6 +118,69 @@ example = """#.######
 #<^v^^>#
 ######.#
 """
+
+
+small_example = """#.#####
+#.....#
+#>....#
+#.....#
+#...v.#
+#.....#
+#####.#
+"""
+
+
+def test_small_example():
+    valley, size, _, _ = parse_input(small_example)
+    model = predict(valley, size)
+
+    assert model.dump(0) == [
+        ".....",
+        ">....",
+        ".....",
+        "...v.",
+        ".....",
+    ]
+
+    assert model.dump(1) == [
+        ".....",
+        ".>...",
+        ".....",
+        ".....",
+        "...v.",
+    ]
+
+    assert model.dump(2) == [
+        "...v.",
+        "..>..",
+        ".....",
+        ".....",
+        ".....",
+    ]
+
+    assert model.dump(3) == [
+        ".....",
+        "...2.",
+        ".....",
+        ".....",
+        ".....",
+    ]
+
+    assert model.dump(4) == [
+        ".....",
+        "....>",
+        "...v.",
+        ".....",
+        ".....",
+    ]
+
+    assert model.dump(5) == [
+        ".....",
+        ">....",
+        ".....",
+        "...v.",
+        ".....",
+    ]
 
 
 def test_part1():
