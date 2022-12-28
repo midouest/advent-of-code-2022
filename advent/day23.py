@@ -38,12 +38,16 @@ def tick(elves: set[Vec2D], d0: int):
                 proposals[(x + dx, y + dy)].append(elf)
                 break
 
-    for final, proposers in proposals.items():
-        if len(proposers) > 1:
+    moved = 0
+    for final, movers in proposals.items():
+        if len(movers) > 1:
             continue
-        elf = proposers[0]
+        elf = movers[0]
         elves.remove(elf)
         elves.add(final)
+        moved += 1
+
+    return (d0 + 1) % 4, moved
 
 
 def get_bounds(elves: set[Vec2D]) -> tuple[int, int, int, int]:
@@ -59,27 +63,22 @@ def count_empty(elves: set[Vec2D]) -> int:
     return (x1 - x0) * (y1 - y0) - len(elves)
 
 
-def debug(elves: set[Vec2D]):
-    x0, x1, y0, y1 = get_bounds(elves)
-    for y in range(y0, y1):
-        out = ""
-        for x in range(x0, x1):
-            out += "#" if (x, y) in elves else "."
-        print(out)
-    print("")
-
-
 def part1(input: str):
     elves = parse_input(input)
     d0 = 0
     for _ in range(10):
-        tick(elves, d0)
-        d0 = (d0 + 1) % 4
+        d0, _ = tick(elves, d0)
     return count_empty(elves)
 
 
 def part2(input: str):
-    raise NotImplementedError()
+    elves = parse_input(input)
+    d0 = 0
+    for i in count(1):
+        d0, moved = tick(elves, d0)
+        if not moved:
+            break
+    return i
 
 
 example = """..............
@@ -102,4 +101,4 @@ def test_part1():
 
 
 def test_part2():
-    assert part2(example) == 0
+    assert part2(example) == 20
