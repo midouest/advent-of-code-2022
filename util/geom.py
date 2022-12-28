@@ -11,6 +11,49 @@ def rotate_2d(v: Vec2D, z: int) -> Vec2D:
     return v
 
 
+def absolute_2d(v: Vec2D) -> Vec2D:
+    x, y = v
+    return abs(x), abs(y)
+
+
+def invert_2d(v: Vec2D) -> Vec2D:
+    x, y = v
+    return (-x, -y)
+
+
+def irange_2d(start: Vec2D, stop: Vec2D, step: Vec2D):
+    x, y = start
+    dx, dy = step
+    xn, yn = stop
+    if (
+        dx == 0
+        and x != xn
+        or dy == 0
+        and y != yn
+        or dx > 0
+        and x > xn
+        or dx < 0
+        and x < xn
+        or dy > 0
+        and y > yn
+        or dy < 0
+        and y < yn
+    ):
+        raise ValueError("irange_2d start, stop and step must terminate")
+    while (dx >= 0 and x <= xn or dx < 0 and x >= xn) and (
+        dy >= 0 and y <= yn or dy < 0 and y >= yn
+    ):
+        yield x, y
+        x += dx
+        y += dy
+
+
+def add_2d(a: Vec2D, b: Vec2D) -> Vec2D:
+    ax, ay = a
+    bx, by = b
+    return (ax + bx, ay + by)
+
+
 def test_rotate_2d_cw():
     assert rotate_2d((1, 0), 1) == (0, 1)
     assert rotate_2d((0, 1), 1) == (-1, 0)
