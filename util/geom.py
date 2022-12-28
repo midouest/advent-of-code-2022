@@ -1,5 +1,12 @@
+from operator import itemgetter
+
 Vec2D = tuple[int, int]
 Vec3D = tuple[int, int, int]
+
+
+get_x = itemgetter(0)
+get_y = itemgetter(1)
+get_z = itemgetter(2)
 
 
 def rotate_2d(v: Vec2D, z: int) -> Vec2D:

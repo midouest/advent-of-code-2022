@@ -17,6 +17,9 @@ from util.geom import (
     rotate_3d,
     invert_3d,
     absolute_3d,
+    get_x,
+    get_y,
+    get_z,
 )
 from util.iterator import chunks
 from util.math import manhattan
@@ -64,4 +67,7 @@ __all__ = [
     "rotate_3d",
     "invert_3d",
     "absolute_3d",
+    "get_x",
+    "get_y",
+    "get_z",
 ]
