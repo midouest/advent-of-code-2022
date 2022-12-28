@@ -73,10 +73,10 @@ def predict(valley: Valley, size: Vec2D):
     return Blizzard(predictions, size)
 
 
-def min_time(model: Blizzard, size: Vec2D, start: Vec2D, stop: Vec2D):
+def min_time(model: Blizzard, size: Vec2D, start: Vec2D, stop: Vec2D, t0=0):
     w, h = size
 
-    state = (0, start)
+    state = (t0, start)
     frontier = deque([(state)])
     visited = set([state])
 
@@ -93,8 +93,8 @@ def min_time(model: Blizzard, size: Vec2D, start: Vec2D, stop: Vec2D):
                 next_state not in visited
                 and x >= 0
                 and x < w
-                and (y >= 0 or next_pos == start)
-                and (y < h or next_pos == stop)
+                and (y >= 0 or next_pos in (start, stop))
+                and (y < h or next_pos in (start, stop))
                 and model.clear(next_pos, next_t)
             ):
                 frontier.append(next_state)
@@ -108,7 +108,12 @@ def part1(input: str):
 
 
 def part2(input: str):
-    raise NotImplementedError()
+    valley, size, start, stop = parse_input(input)
+    model = predict(valley, size)
+    there = min_time(model, size, start, stop)
+    back = min_time(model, size, stop, start, there)
+    again = min_time(model, size, start, stop, back)
+    return again
 
 
 example = """#.######
@@ -188,4 +193,4 @@ def test_part1():
 
 
 def test_part2():
-    assert part2(example) == 0
+    assert part2(example) == 54
